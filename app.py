@@ -346,26 +346,43 @@ def main():
     # Get all policy refs for autocomplete
     policy_refs = get_all_policy_refs()
     
-    # Create search input with autocomplete
-    col1, col2 = st.columns([3, 1])
+    # Single unified search field
+    col1, col2 = st.columns([4, 1])
     
     with col1:
-        selected_policy = st.selectbox(
-            "Select or type Policy Reference",
-            options=[""] + policy_refs,
-            index=0,
-            help="Start typing to filter policies or enter a new policy reference"
-        )
+        # Initialize session state for custom policy input
+        if 'use_custom_policy' not in st.session_state:
+            st.session_state.use_custom_policy = False
+        
+        # Main policy selection/input
+        if not st.session_state.use_custom_policy:
+            # Selectbox for existing policies
+            selected_policy = st.selectbox(
+                "Select or Type Policy Reference",
+                options=[""] + policy_refs,
+                index=0,
+                help="Start typing to filter existing policies, or click 'Type New Policy' to enter a policy that doesn't exist yet"
+            )
+            policy_ref_to_search = selected_policy
+        else:
+            # Text input for new policy
+            policy_ref_to_search = st.text_input(
+                "Enter New Policy Reference",
+                placeholder="Type the new policy reference...",
+                help="Enter a policy reference that doesn't exist in the database yet",
+                key="new_policy_input"
+            )
+        
+        # Toggle button to switch between modes
+        col_a, col_b = st.columns([1, 3])
+        with col_a:
+            if st.button("📝 Type New Policy" if not st.session_state.use_custom_policy else "📋 Select Existing", 
+                        use_container_width=True):
+                st.session_state.use_custom_policy = not st.session_state.use_custom_policy
+                st.rerun()
     
     with col2:
-        # Option to manually enter a new policy ref
-        manual_entry = st.text_input(
-            "Or enter manually",
-            help="Enter a policy reference that may not exist yet"
-        )
-    
-    # Determine which policy ref to use
-    policy_ref_to_search = manual_entry if manual_entry else selected_policy
+        st.write("")  # Spacer
     
     # Search button
     if st.button("🔍 Load Policy", type="primary", disabled=not policy_ref_to_search):
