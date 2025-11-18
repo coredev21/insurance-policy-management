@@ -322,7 +322,7 @@ def display_policy_form(policy_ref: str):
 def main():
     """Main application function."""
     
-    st.title("🏢 Insurance Policy Management System")
+    st.title("🏢 Insurance Policy Enrichment System")
     st.markdown("---")
     
     # Sidebar for connection info
